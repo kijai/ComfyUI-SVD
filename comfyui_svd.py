@@ -3,6 +3,7 @@ from omegaconf import OmegaConf
 import math
 import torch
 import importlib
+import comfy.model_management
 
 def get_obj_from_str(string, reload=False, invalidate_cache=True):
     module, cls = string.rsplit(".", 1)
@@ -127,6 +128,11 @@ class SVDimg2vid:
 
     def generate(self, image, version, num_frames, num_steps, fps_id, motion_bucket_id, cond_aug, seed, decoding_t, lowvram_mode):
        
+        #since this is so memory intensive, try to get everything free
+        comfy.model_management.cleanup_models()
+        torch.cuda.empty_cache()
+        torch.cuda.ipc_collect()
+
         device: str = "cuda"
 
         model_config = f"custom_nodes/ComfyUI-SVD/svd/configs/{version}.yaml"
