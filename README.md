@@ -8,7 +8,9 @@ I used my existing ComfyUI venv and added whatever requirements was missing. Thi
 pip install -r requirements.txt
 
 You need the checkpoints from here, normal one is trained for 14 images and XT for 25. Choose whichever and put them in the checkpoints folder in this custom node's folder.
+
 https://huggingface.co/stabilityai/stable-video-diffusion-img2vid
+
 https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt
 
 With default settings 25 1024x576 frames using svt_xt should run with bit under 20GB.
