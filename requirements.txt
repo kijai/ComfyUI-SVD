@@ -3,3 +3,5 @@ omegaconf
 pytorch-lightning==2.0.1
 open-clip-torch>=2.20.0
 sgm @ git+https://github.com/Stability-AI/generative-models
+xformers>=0.0.20
+kornia==0.6.9
