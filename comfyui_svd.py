@@ -95,7 +95,7 @@ class SVDimg2vid:
                 "num_steps": ("INT", {"default": 25}),
                 "fps_id": ("INT", {"default": 6}),
                 "motion_bucket_id": ("INT", {"default": 127}),
-                "cond_aug": ("FLOAT", {"default": 0.02}),
+                "cond_aug": ("FLOAT", {"default": 0.02, "step":0.001}),
                 "seed": ("INT", {"default": 2331121321}),
                 "decoding_t": ("INT", {"default": 1}),
                 "lowvram_mode": ("BOOLEAN", {"default": True}),
