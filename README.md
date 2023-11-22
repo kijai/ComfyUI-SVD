@@ -15,3 +15,6 @@ to ComfyUI/checkpoints folder (because I suck and don't know how to change that 
 With default settings 25 1024x576 frames using svt_xt should run bit under 20GB.
 
 Again, to make it clear, this is experimental and I won't be helping with installation or take any responsibility if you break something using this!
+
+
+pip install sgm@git+https://github.com/Stability-AI/generative-models
