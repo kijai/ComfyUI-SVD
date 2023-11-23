@@ -68,6 +68,7 @@ def get_batch(keys, value_dict, N, T, device):
 
 def load_model(
     config: str,
+    script_directory: str,
     device: str,
     num_frames: int,
     num_steps: int,
@@ -75,6 +76,7 @@ def load_model(
 ):
     
     config = OmegaConf.load(config)
+    config.model.params.ckpt_path = os.path.join(script_directory, config.model.params.ckpt_path)
     config.model.params.conditioner_config.params.emb_models[0].params.open_clip_embedding_config.params.init_device = device
     config.model.params.sampler_config.params.num_steps = num_steps
     config.model.params.sampler_config.params.guider_config.params.num_frames = (num_frames)
@@ -127,12 +129,13 @@ class SVDimg2vid:
         torch.cuda.ipc_collect()
 
         device: str = "cuda"
-        
+    
         script_directory = os.path.dirname(os.path.abspath(__file__))
-        model_config = f"{script_directory}/svd/configs/{version}.yaml"
+        model_config = os.path.join(script_directory, "svd", "configs", f"{version}.yaml")
 
         model = load_model(
             model_config,
+            script_directory,
             device,
             num_frames,
             num_steps,
