@@ -74,25 +74,17 @@ def load_model(
 ):
     
     config = OmegaConf.load(config)
-    if device == "cuda":
-        config.model.params.conditioner_config.params.emb_models[
-            0
-        ].params.open_clip_embedding_config.params.init_device = device
-
+    config.model.params.conditioner_config.params.emb_models[0].params.open_clip_embedding_config.params.init_device = device
     config.model.params.sampler_config.params.num_steps = num_steps
-    config.model.params.sampler_config.params.guider_config.params.num_frames = (
-        num_frames
-    )
-    if device == "cuda":
-        with torch.device(device):
-            model = instantiate_from_config(config.model).to(device).eval()
-    else:
-        model = instantiate_from_config(config.model).to(device).eval()
+    config.model.params.sampler_config.params.guider_config.params.num_frames = (num_frames)
+    model = instantiate_from_config(config.model).to(device).eval()
 
     if lowvram_mode:
         model.model.half()
+
     return model
 
+           
 class SVDimg2vid:
 
     @classmethod
@@ -148,7 +140,9 @@ class SVDimg2vid:
         torch.manual_seed(seed)
         image = image.permute(0, 3, 1, 2) 
         image = image * 2.0 - 1.0
+        
         image = image.to(device)
+      
         B, C, H, W = image.shape
         assert C == 3
         F = 8
@@ -178,6 +172,7 @@ class SVDimg2vid:
 
         with torch.no_grad():
             with torch.autocast(device):
+                model.conditioner.to(device)
                 batch, batch_uc = get_batch(
                     get_unique_embedder_keys_from_conditioner(model.conditioner),
                     value_dict,
@@ -194,6 +189,10 @@ class SVDimg2vid:
                     ],
                 )
 
+                if lowvram_mode:
+                    model.conditioner.cpu()
+                    torch.cuda.empty_cache()
+
                 for k in ["crossattn", "concat"]:
                     uc[k] = repeat(uc[k], "b ... -> b t ...", t=num_frames)
                     uc[k] = rearrange(uc[k], "b t ... -> (b t) ...", t=num_frames)
@@ -209,11 +208,21 @@ class SVDimg2vid:
                 additional_model_inputs["num_video_frames"] = batch["num_video_frames"]
 
                 def denoiser(input, sigma, c):
+                    if lowvram_mode:
+                        input = input.half()
                     return model.denoiser(
                         model.model, input, sigma, c, **additional_model_inputs
                     )
 
+                model.denoiser.to(device)
+                model.model.to(device)
                 samples_z = model.sampler(denoiser, randn, cond=c, uc=uc)
+
+                if lowvram_mode:
+                    model.model.cpu()
+                    model.denoiser.cpu()
+                    torch.cuda.empty_cache()
+                    
                 model.en_and_decode_n_samples_a_time = decoding_t
                 samples_x = model.decode_first_stage(samples_z)
                 samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0)
