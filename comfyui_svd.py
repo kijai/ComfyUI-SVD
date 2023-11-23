@@ -4,6 +4,7 @@ import math
 import torch
 import importlib
 import comfy.model_management
+import os
 
 def get_obj_from_str(string, reload=False, invalidate_cache=True):
     module, cls = string.rsplit(".", 1)
@@ -126,8 +127,9 @@ class SVDimg2vid:
         torch.cuda.ipc_collect()
 
         device: str = "cuda"
-
-        model_config = f"custom_nodes/ComfyUI-SVD/svd/configs/{version}.yaml"
+        
+        script_directory = os.path.dirname(os.path.abspath(__file__))
+        model_config = f"{script_directory}/svd/configs/{version}.yaml"
 
         model = load_model(
             model_config,
