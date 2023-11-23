@@ -125,7 +125,7 @@ class SVDimg2vid:
        
         w, h = image.shape[2], image.shape[1]
         if h % 64 != 0 or w % 64 != 0:
-            raise ValueError(f"SVD: ERROR: Your image is of size {h}x{w} which is not divisible by 64")
+            raise ValueError(f"SVD: ERROR: Your image is of size {w}x{h} which is not divisible by 64")
 
         #since this is so memory intensive, try to get everything free
         comfy.model_management.cleanup_models()
@@ -159,7 +159,7 @@ class SVDimg2vid:
         shape = (num_frames, C, H // F, W // F)
         if (H, W) != (576, 1024):
             print(
-                "WARNING: The conditioning frame you provided is not 576x1024. This leads to suboptimal performance as model was only trained on 576x1024. Consider increasing `cond_aug`."
+                "WARNING: The conditioning frame you provided is not 1024x576. This leads to suboptimal performance as model was only trained on 1024x576. Consider increasing `cond_aug`."
             )
         if motion_bucket_id > 255:
             print(
