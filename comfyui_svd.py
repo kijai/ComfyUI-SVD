@@ -101,13 +101,13 @@ class SVDimg2vid:
             "default": 'svd'
             }),
                 "image": ("IMAGE",),
-                "num_frames": ("INT", {"default": 14}),
-                "num_steps": ("INT", {"default": 25}),
-                "fps_id": ("INT", {"default": 6}),
-                "motion_bucket_id": ("INT", {"default": 127}),
+                "num_frames": ("INT", {"default": 14, "min": 2, "max": 1000}),
+                "num_steps": ("INT", {"default": 24, "min": 1, "max": 10000}),
+                "fps_id": ("INT", {"default": 6, "min": 1, "max": 100}),
+                "motion_bucket_id": ("INT", {"default": 127, "min": 1, "max": 10000}),
                 "cond_aug": ("FLOAT", {"default": 0.02, "step":0.001}),
-                "seed": ("INT", {"default": 2331121321}),
-                "decoding_t": ("INT", {"default": 1}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                "decoding_t": ("INT", {"default": 1, "min": 1, "max": 10000}),
                 "lowvram_mode": ("BOOLEAN", {"default": True}),
             },
         }
@@ -210,9 +210,7 @@ class SVDimg2vid:
                 def denoiser(input, sigma, c):
                     if lowvram_mode:
                         input = input.half()
-                    return model.denoiser(
-                        model.model, input, sigma, c, **additional_model_inputs
-                    )
+                    return model.denoiser(model.model, input, sigma, c, **additional_model_inputs)
 
                 model.denoiser.to(device)
                 model.model.to(device)
@@ -225,6 +223,8 @@ class SVDimg2vid:
                     
                 model.en_and_decode_n_samples_a_time = decoding_t
                 samples_x = model.decode_first_stage(samples_z)
+
+
                 samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0)
                 samples = samples.permute(0, 2, 3, 1)
         results = samples.cpu()
