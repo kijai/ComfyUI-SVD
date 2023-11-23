@@ -123,6 +123,10 @@ class SVDimg2vid:
 
     def generate(self, image, version, num_frames, num_steps, fps_id, motion_bucket_id, cond_aug, seed, decoding_t, lowvram_mode):
        
+        w, h = image.shape[2], image.shape[1]
+        if h % 64 != 0 or w % 64 != 0:
+            raise ValueError(f"SVD: ERROR: Your image is of size {h}x{w} which is not divisible by 64")
+
         #since this is so memory intensive, try to get everything free
         comfy.model_management.cleanup_models()
         torch.cuda.empty_cache()
