@@ -1,5 +1,7 @@
 ## Preliminary use of SVD in ComfyUI
 
+UPDATE: Comfy has added official support so this all is redundant now: https://comfyanonymous.github.io/ComfyUI_examples/video/
+
 DISCLAIMER: I'm NOT a proper coder, this is NOT A PROPER implementation, this is a very quick hack,  but it works for me, so I'll share it.
 
 I used my existing ComfyUI venv and added whatever requirements was missing. This needs Pytorch 2. I might have missed some requirements so if something fails, like always, check the startup log for errors.
